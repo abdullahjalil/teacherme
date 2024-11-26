@@ -1,38 +1,175 @@
-.App {
+:root {
+  --background: #f6f7f8;
+  --card-bg: #ffffff;
+  --text-color: #1c1c1c;
+  --primary-accent: #ff4500;
+  --secondary-accent: #0079d3;
+  --border-color: #e4e6eb;
+  --input-bg: #f0f2f5;
+}
+
+body {
+  background-color: var(--background);
+  font-family: Arial, sans-serif;
+  color: var(--text-color);
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.card h2 {
+  color: var(--primary-accent);
+}
+
+button {
+  background-color: var(--primary-accent);
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: var(--secondary-accent);
+}
+
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--input-bg);
+}
+
+h1, h2 {
   text-align: center;
 }
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+tr:hover {
+  background-color: #f1f1f1;
+}
+
+td {
+  text-align: center;
+}
+/* Center and style the table */
+.table-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  padding: 20px;
 }
 
-.App-link {
-  color: #61dafb;
+.responsive-table {
+  width: 100%;
+  max-width: 1200px;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 14px;
+  text-align: center;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.responsive-table th, .responsive-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.responsive-table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.responsive-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* Slide-in editor */
+.slide-in-editor {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 400px;
+  background-color: #fff;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  overflow-y: auto;
+  z-index: 1000;
+  transition: transform 0.3s ease-in-out;
+}
+
+.slide-in-editor h3 {
+  margin-bottom: 20px;
+}
+
+.subject-edit {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.subject-edit input {
+  width: 60px;
+  padding: 5px;
+}
+
+.editor-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.editor-actions button {
+  padding: 10px 20px;
+  font-size: 14px;
+  cursor: pointer;
+}
+/* Style for Total Score column */
+td:last-child, th:last-child {
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+}
+/* Highlight Total Score and Percentage columns */
+td:nth-last-child(3), td:nth-last-child(2), th:nth-last-child(3), th:nth-last-child(2) {
+  font-weight: bold;
+  color: #333;
+  text-align: center;
 }
