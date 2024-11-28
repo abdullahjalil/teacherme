@@ -42,6 +42,7 @@ button {
   padding: 10px 15px;
   border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 button:hover {
@@ -60,34 +61,7 @@ input, select {
 h1, h2 {
   text-align: center;
 }
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
 
-th, td {
-  border: 1px solid #ddd;
-  padding: 8px;
-}
-
-th {
-  background-color: #f4f4f4;
-  font-weight: bold;
-}
-
-tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-tr:hover {
-  background-color: #f1f1f1;
-}
-
-td {
-  text-align: center;
-}
-/* Center and style the table */
 .table-container {
   display: flex;
   flex-direction: column;
@@ -103,20 +77,38 @@ td {
   margin: 20px 0;
   font-size: 14px;
   text-align: center;
+  background-color: var(--card-bg);
 }
 
 .responsive-table th, .responsive-table td {
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   padding: 8px;
 }
 
 .responsive-table th {
   background-color: #f4f4f4;
   font-weight: bold;
+  color: var(--text-color);
 }
 
 .responsive-table tr:nth-child(even) {
-  background-color: #f9f9f9;
+  background-color: var(--input-bg);
+}
+
+.responsive-table tr:hover {
+  background-color: #e8eff5;
+}
+
+td {
+  text-align: center;
+  color: var(--text-color);
+}
+
+/* Highlight Total Score and Percentage columns */
+td:nth-last-child(3), td:nth-last-child(2), th:nth-last-child(3), th:nth-last-child(2) {
+  font-weight: bold;
+  color: var(--primary-accent);
+  text-align: center;
 }
 
 /* Slide-in editor */
@@ -126,7 +118,7 @@ td {
   right: 0;
   height: 100%;
   width: 400px;
-  background-color: #fff;
+  background-color: var(--card-bg);
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
   padding: 20px;
   overflow-y: auto;
@@ -136,6 +128,7 @@ td {
 
 .slide-in-editor h3 {
   margin-bottom: 20px;
+  color: var(--primary-accent);
 }
 
 .subject-edit {
@@ -160,16 +153,117 @@ td {
   padding: 10px 20px;
   font-size: 14px;
   cursor: pointer;
+  background-color: var(--secondary-accent);
+  color: #fff;
+  border-radius: 4px;
+  border: none;
 }
-/* Style for Total Score column */
-td:last-child, th:last-child {
-  font-weight: bold;
-  color: #333;
-  text-align: center;
+
+.editor-actions button:hover {
+  background-color: var(--primary-accent);
 }
-/* Highlight Total Score and Percentage columns */
-td:nth-last-child(3), td:nth-last-child(2), th:nth-last-child(3), th:nth-last-child(2) {
-  font-weight: bold;
-  color: #333;
-  text-align: center;
+
+/* Responsive Design for Mobile */
+@media screen and (max-width: 768px) {
+  .responsive-table,
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
+    display: block;
+  }
+
+  thead tr {
+    display: none;
+  }
+
+  tbody tr {
+    margin-bottom: 10px;
+    border: 1px solid var(--border-color);
+  }
+
+  tbody td {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px;
+    text-align: right;
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  tbody td:before {
+    content: attr(data-label);
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-right: 10px;
+    text-align: left;
+  }
+
+  button {
+    font-size: 14px;
+    padding: 8px;
+  }
+}
+
+/* General Form Styles */
+.add-student-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+/* Input Styles */
+.form-input {
+  flex: 1;
+  min-width: 200px;
+  max-width: 300px;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--input-bg);
+  font-size: 16px;
+  color: var(--text-color);
+}
+
+/* Button Styles */
+.add-button {
+  background-color: var(--primary-accent);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+
+.add-button:hover {
+  background-color: var(--secondary-accent);
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+  .add-student-form {
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+  }
+
+  .form-input {
+    min-width: 100%;
+    max-width: 100%;
+  }
+
+  .add-button {
+    width: 100%;
+    font-size: 18px;
+  }
+  .side-bar{
+    width: 100%;
+  }
 }

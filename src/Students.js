@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { db } from "./firebaseConfig";
 import { collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, where } from "firebase/firestore";
 import { useAuth } from "./AuthContext";
+import './App.css';
 
 const Students = () => {
   const { user, logout } = useAuth(); // Access current user and logout function
@@ -35,7 +36,7 @@ const Students = () => {
     }
     return "PASS"; // All subjects are above thresholds
   };
-  
+
   const getCellStyle = (subjectName, score) => {
     if (score < thresholds[subjectName]) {
       return { backgroundColor: "lightcoral", color: "#fff" };
@@ -78,7 +79,7 @@ const Students = () => {
       alert("Please provide both first name and last name.");
       return;
     }
-  
+
     try {
       const studentData = {
         firstName,
@@ -98,16 +99,16 @@ const Students = () => {
           { name: "Biology Practical", score: "" },
         ],
       };
-  
+
       const studentCollection = collection(db, "students");
       const docRef = await addDoc(studentCollection, studentData);
-  
+
       // Add student to local state with Firestore-generated ID
       setStudents((prev) => [
         ...prev,
         { ...studentData, id: docRef.id }, // Include the Firestore document ID
       ]);
-  
+
       setFirstName("");
       setLastName("");
       alert("Student added successfully!");
@@ -116,7 +117,7 @@ const Students = () => {
       alert("Failed to add student.");
     }
   };
-  
+
 
   // Delete a student
   const handleDeleteStudent = async (id) => {
@@ -198,25 +199,26 @@ const Students = () => {
       <h2 style={styles.title}>Manage Students</h2>
 
       {/* Add Student Form */}
-      <form onSubmit={handleAddStudent} style={styles.form}>
+      <form onSubmit={handleAddStudent} className="add-student-form">
         <input
           type="text"
           placeholder="First Name"
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
-          style={styles.input}
+          className="form-input"
         />
         <input
           type="text"
           placeholder="Last Name"
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
-          style={styles.input}
+          className="form-input"
         />
-        <button type="submit" style={styles.addButton}>
+        <button type="submit" className="add-button">
           Add Student
         </button>
       </form>
+
 
       {/* Student List Table */}
       <table style={styles.table}>
@@ -251,21 +253,23 @@ const Students = () => {
 
             return (
               <tr key={student.id}>
-                <td>{student.firstName} {student.lastName}</td>
+                <td data-label="Student Name">
+                  {student.firstName} {student.lastName}
+                </td>
                 {(student.subjects || []).map((subject, index) => (
                   <td
-                  key={index}
-                  style={getCellStyle(subject.name, parseInt(subject.score) || 0)}
-                >
-                  {subject.score || "-"}
-                </td>
-                
+                    key={index}
+                    style={getCellStyle(subject.name, parseInt(subject.score) || 0)}
+                    data-label={subject.name}
+                  >
+                    {subject.score || "-"}
+                  </td>
                 ))}
-                <td>{totalScore}</td>
-                <td>{percentage}%</td>
-                <td>{grade}</td>
-                <td>{remarks}</td>
-                <td>
+                <td data-label="Total Score">{totalScore}</td>
+                <td data-label="Percentage">{percentage}%</td>
+                <td data-label="Grade">{grade}</td>
+                <td data-label="Remarks">{remarks}</td>
+                <td data-label="Edit">
                   <button
                     onClick={() => handleEditStudent(student)}
                     style={styles.editButton}
@@ -273,7 +277,7 @@ const Students = () => {
                     Edit
                   </button>
                 </td>
-                <td>
+                <td data-label="Delete">
                   <button
                     onClick={() => handleDeleteStudent(student.id)}
                     style={styles.deleteButton}
@@ -287,9 +291,10 @@ const Students = () => {
         </tbody>
       </table>
 
+
       {/* Slide-In Edit Panel */}
       {editingStudent && (
-        <div style={styles.editPanel}>
+        <div class="side-bar" style={styles.editPanel}>
           <h3>Editing Scores for {editingStudent.firstName} {editingStudent.lastName}</h3>
           <div style={styles.editForm}>
             {editScores.map((subject, index) => (
