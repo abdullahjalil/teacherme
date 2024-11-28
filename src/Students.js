@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { db } from "./firebaseConfig";
-import { collection, addDoc, getDocs, doc, deleteDoc, query, where } from "firebase/firestore";
+import { collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, where } from "firebase/firestore";
 import { useAuth } from "./AuthContext";
 
 const Students = () => {
@@ -9,6 +9,39 @@ const Students = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [loading, setLoading] = useState(true);
+  const [editingStudent, setEditingStudent] = useState(null); // Student being edited
+  const [editScores, setEditScores] = useState([]); // Temporary scores during editing
+
+  const thresholds = {
+    Urdu: 30,
+    English: 30,
+    Math: 30,
+    "Islamic Studies": 20,
+    "Pakistan Studies": 20,
+    Physics: 24,
+    "Physics Practical": 4,
+    Chemistry: 24,
+    "Chemistry Practical": 4,
+    Biology: 24,
+    "Biology Practical": 4,
+  };
+
+  const calculateRemarks = (subjects) => {
+    for (let subject of subjects) {
+      const score = parseInt(subject.score) || 0;
+      if (score < thresholds[subject.name]) {
+        return "FAIL"; // If any subject is below threshold, it's a fail
+      }
+    }
+    return "PASS"; // All subjects are above thresholds
+  };
+  
+  const getCellStyle = (subjectName, score) => {
+    if (score < thresholds[subjectName]) {
+      return { backgroundColor: "lightcoral", color: "#fff" };
+    }
+    return {};
+  };
 
   // Fetch students belonging to the logged-in teacher
   useEffect(() => {
@@ -19,7 +52,6 @@ const Students = () => {
       }
 
       try {
-        console.log("Fetching students for user:", user.uid);
         const studentCollection = collection(db, "students");
         const q = query(studentCollection, where("teacherId", "==", user.uid));
         const studentSnapshot = await getDocs(q);
@@ -29,7 +61,6 @@ const Students = () => {
           ...doc.data(),
         }));
 
-        console.log("Fetched students:", studentList);
         setStudents(studentList);
         setLoading(false);
       } catch (err) {
@@ -47,7 +78,7 @@ const Students = () => {
       alert("Please provide both first name and last name.");
       return;
     }
-
+  
     try {
       const studentData = {
         firstName,
@@ -67,11 +98,16 @@ const Students = () => {
           { name: "Biology Practical", score: "" },
         ],
       };
-
+  
       const studentCollection = collection(db, "students");
-      await addDoc(studentCollection, studentData);
-
-      setStudents((prev) => [...prev, { ...studentData, id: Date.now() }]);
+      const docRef = await addDoc(studentCollection, studentData);
+  
+      // Add student to local state with Firestore-generated ID
+      setStudents((prev) => [
+        ...prev,
+        { ...studentData, id: docRef.id }, // Include the Firestore document ID
+      ]);
+  
       setFirstName("");
       setLastName("");
       alert("Student added successfully!");
@@ -80,6 +116,7 @@ const Students = () => {
       alert("Failed to add student.");
     }
   };
+  
 
   // Delete a student
   const handleDeleteStudent = async (id) => {
@@ -93,10 +130,53 @@ const Students = () => {
     }
   };
 
+  // Open the edit panel for a student
+  const handleEditStudent = (student) => {
+    setEditingStudent(student);
+    setEditScores([...student.subjects]); // Clone the student's subjects for editing
+  };
+
+  // Save the updated scores
+  const saveScores = async () => {
+    if (!editingStudent) return;
+
+    try {
+      const studentDoc = doc(db, "students", editingStudent.id);
+      await updateDoc(studentDoc, { subjects: editScores });
+
+      // Update the local state
+      setStudents((prev) =>
+        prev.map((student) =>
+          student.id === editingStudent.id ? { ...student, subjects: editScores } : student
+        )
+      );
+
+      alert("Scores updated successfully!");
+      setEditingStudent(null); // Close the edit panel
+    } catch (err) {
+      console.error("Error saving scores:", err);
+      alert("Failed to save scores.");
+    }
+  };
+
+  // Cancel editing
+  const cancelEdit = () => {
+    setEditingStudent(null); // Close the edit panel without saving
+  };
+
   const calculateTotalScore = (subjects) =>
     subjects.reduce((total, subject) => total + (parseInt(subject.score) || 0), 0);
 
   const calculatePercentage = (totalScore) => ((totalScore / 350) * 100).toFixed(2);
+
+  const calculateGrade = (percentage) => {
+    if (percentage >= 80) return "A+";
+    if (percentage >= 70) return "A";
+    if (percentage >= 60) return "B";
+    if (percentage >= 50) return "C";
+    if (percentage >= 40) return "D";
+    return "-";
+  };
 
   if (loading) return <div>Loading students...</div>;
 
@@ -156,6 +236,9 @@ const Students = () => {
             <th>Biology Practical</th>
             <th>Total Score</th>
             <th>Percentage</th>
+            <th>Grade</th>
+            <th>Remarks</th>
+            <th>Edit</th>
             <th>Delete</th>
           </tr>
         </thead>
@@ -163,15 +246,33 @@ const Students = () => {
           {students.map((student) => {
             const totalScore = calculateTotalScore(student.subjects || []);
             const percentage = calculatePercentage(totalScore);
+            const grade = calculateGrade(percentage);
+            const remarks = calculateRemarks(student.subjects || []);
 
             return (
               <tr key={student.id}>
                 <td>{student.firstName} {student.lastName}</td>
                 {(student.subjects || []).map((subject, index) => (
-                  <td key={index}>{subject.score || "-"}</td>
+                  <td
+                  key={index}
+                  style={getCellStyle(subject.name, parseInt(subject.score) || 0)}
+                >
+                  {subject.score || "-"}
+                </td>
+                
                 ))}
                 <td>{totalScore}</td>
                 <td>{percentage}%</td>
+                <td>{grade}</td>
+                <td>{remarks}</td>
+                <td>
+                  <button
+                    onClick={() => handleEditStudent(student)}
+                    style={styles.editButton}
+                  >
+                    Edit
+                  </button>
+                </td>
                 <td>
                   <button
                     onClick={() => handleDeleteStudent(student.id)}
@@ -185,6 +286,34 @@ const Students = () => {
           })}
         </tbody>
       </table>
+
+      {/* Slide-In Edit Panel */}
+      {editingStudent && (
+        <div style={styles.editPanel}>
+          <h3>Editing Scores for {editingStudent.firstName} {editingStudent.lastName}</h3>
+          <div style={styles.editForm}>
+            {editScores.map((subject, index) => (
+              <div key={index} style={styles.subjectRow}>
+                <span>{subject.name}:</span>
+                <input
+                  type="number"
+                  value={subject.score || ""}
+                  onChange={(e) => {
+                    const updatedScores = [...editScores];
+                    updatedScores[index].score = e.target.value;
+                    setEditScores(updatedScores);
+                  }}
+                  style={styles.input}
+                />
+              </div>
+            ))}
+          </div>
+          <div style={styles.editActions}>
+            <button onClick={saveScores} style={styles.saveButton}>Save</button>
+            <button onClick={cancelEdit} style={styles.cancelButton}>Cancel</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -250,11 +379,60 @@ const styles = {
     width: "100%",
     borderCollapse: "collapse",
   },
+  editButton: {
+    padding: "5px 10px",
+    backgroundColor: "orange",
+    color: "#fff",
+    border: "none",
+    borderRadius: "4px",
+    cursor: "pointer",
+  },
   deleteButton: {
     padding: "5px 10px",
     backgroundColor: "red",
     color: "#fff",
     border: "none",
+    borderRadius: "4px",
+    cursor: "pointer",
+  },
+  editPanel: {
+    position: "fixed",
+    top: 0,
+    right: 0,
+    height: "100%",
+    width: "400px",
+    backgroundColor: "#fff",
+    boxShadow: "-2px 0 5px rgba(0, 0, 0, 0.2)",
+    padding: "20px",
+    overflowY: "auto",
+    zIndex: 1000,
+  },
+  editForm: {
+    marginTop: "20px",
+  },
+  subjectRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    marginBottom: "10px",
+  },
+  editActions: {
+    display: "flex",
+    justifyContent: "space-between",
+    marginTop: "20px",
+  },
+  saveButton: {
+    backgroundColor: "#0079d3",
+    color: "#fff",
+    border: "none",
+    padding: "10px 20px",
+    borderRadius: "4px",
+    cursor: "pointer",
+  },
+  cancelButton: {
+    backgroundColor: "grey",
+    color: "#fff",
+    border: "none",
+    padding: "10px 20px",
     borderRadius: "4px",
     cursor: "pointer",
   },
