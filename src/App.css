@@ -104,12 +104,6 @@ td {
   color: var(--text-color);
 }
 
-/* Highlight Total Score and Percentage columns */
-td:nth-last-child(3), td:nth-last-child(2), th:nth-last-child(3), th:nth-last-child(2) {
-  font-weight: bold;
-  color: var(--primary-accent);
-  text-align: center;
-}
 
 /* Slide-in editor */
 .slide-in-editor {
